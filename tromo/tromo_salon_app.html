@@ -1,0 +1,730 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --bg:#0D0D0F;--bg2:#151518;--bg3:#1C1C20;--bg4:#242428;
+    --accent:#C8F04B;--accent2:#A8D43A;--text:#F0F0F0;--muted:#888;
+    --border:#2A2A2E;--card:#181820;--pink:#FF6B9D;--gold:#FFB347;
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);max-width:390px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
+  .app{display:flex;flex-direction:column;min-height:100vh;background:var(--bg)}
+  .screen{display:none;flex-direction:column;flex:1;padding-bottom:80px}
+  .screen.active{display:flex}
+  /* NAV */
+  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:390px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding:8px 0 14px}
+  .nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;padding:6px 0;border:none;background:none;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;transition:.2s}
+  .nav-btn.active{color:var(--accent)}
+  .nav-icon{font-size:20px;line-height:1}
+  /* HEADER */
+  .hdr{padding:52px 20px 16px;background:var(--bg)}
+  .hdr-row{display:flex;justify-content:space-between;align-items:center}
+  .logo{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;letter-spacing:-1px;color:var(--text)}
+  .logo span{color:var(--accent)}
+  .avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000;cursor:pointer}
+  /* SEARCH */
+  .search-bar{margin:12px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:14px;display:flex;align-items:center;gap:10px;padding:12px 16px}
+  .search-bar input{background:none;border:none;outline:none;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;flex:1}
+  .search-bar input::placeholder{color:var(--muted)}
+  .search-icon{color:var(--muted);font-size:16px}
+  /* SECTION */
+  .section{padding:0 20px 8px}
+  .section-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+  .section-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+  .see-all{font-size:12px;color:var(--accent);cursor:pointer}
+  /* CATEGORY PILLS */
+  .cats{display:flex;gap:8px;padding:0 20px 16px;overflow-x:auto;scrollbar-width:none}
+  .cats::-webkit-scrollbar{display:none}
+  .cat{padding:8px 16px;border-radius:20px;font-size:12px;font-weight:500;white-space:nowrap;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--muted);transition:.2s}
+  .cat.active{background:var(--accent);color:#000;border-color:var(--accent)}
+  /* SALON CARDS */
+  .salon-scroll{display:flex;gap:14px;padding:0 20px 4px;overflow-x:auto;scrollbar-width:none}
+  .salon-scroll::-webkit-scrollbar{display:none}
+  .salon-card{min-width:200px;background:var(--card);border-radius:18px;overflow:hidden;cursor:pointer;border:1px solid var(--border);flex-shrink:0;transition:.15s}
+  .salon-card:active{transform:scale(.97)}
+  .salon-card-img{height:110px;display:flex;align-items:center;justify-content:center;font-size:42px;position:relative}
+  .rating-badge{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.7);border-radius:8px;padding:3px 8px;font-size:11px;color:var(--gold);font-weight:600}
+  .salon-card-body{padding:12px}
+  .salon-card-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:3px}
+  .salon-card-loc{font-size:11px;color:var(--muted);margin-bottom:8px}
+  .salon-card-tags{display:flex;gap:4px;flex-wrap:wrap}
+  .tag{font-size:10px;padding:3px 8px;border-radius:6px;background:var(--bg4);color:var(--muted)}
+  /* NEARBY (list) */
+  .salon-list-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;display:flex;gap:14px;cursor:pointer;transition:.15s;margin-bottom:12px}
+  .salon-list-card:active{transform:scale(.98)}
+  .slist-icon{width:56px;height:56px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+  .slist-info{flex:1}
+  .slist-name{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:2px}
+  .slist-meta{font-size:11px;color:var(--muted);margin-bottom:6px}
+  .slist-row{display:flex;justify-content:space-between;align-items:center}
+  .open-badge{font-size:10px;padding:2px 8px;border-radius:6px;background:#1C2E14;color:#7ED348;font-weight:500}
+  .dist{font-size:11px;color:var(--muted)}
+  /* SALON DETAIL */
+  .detail-hero{height:200px;display:flex;align-items:center;justify-content:center;font-size:72px;position:relative;background:var(--bg3)}
+  .back-btn{position:absolute;top:52px;left:20px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .fav-btn{position:absolute;top:52px;right:20px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.6);border:none;color:var(--text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .detail-body{padding:20px}
+  .detail-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+  .detail-meta{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+  .detail-meta span{font-size:12px;color:var(--muted)}
+  .star{color:var(--gold)}
+  .detail-section{margin-bottom:20px}
+  .detail-section-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px;color:var(--accent)}
+  .service-item{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+  .service-item:last-child{border-bottom:none}
+  .service-name{font-size:14px;font-weight:500}
+  .service-dur{font-size:11px;color:var(--muted);margin-top:2px}
+  .service-price{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent)}
+  .book-btn{width:100%;background:var(--accent);color:#000;border:none;border-radius:14px;padding:16px;font-family:'Syne',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:.15s}
+  .book-btn:active{transform:scale(.98);background:var(--accent2)}
+  /* BOOKING FLOW */
+  .booking-flow{padding:20px}
+  .flow-hdr{margin-bottom:24px}
+  .flow-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+  .flow-sub{font-size:13px;color:var(--muted);margin-top:4px}
+  .step-indicator{display:flex;gap:8px;margin-bottom:24px}
+  .step-dot{height:3px;border-radius:2px;flex:1;background:var(--border);transition:.3s}
+  .step-dot.done{background:var(--accent)}
+  .step-dot.active{background:var(--accent);opacity:.5}
+  .selected-service{background:var(--bg3);border-radius:12px;padding:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+  .sel-sname{font-size:14px;font-weight:500}
+  .sel-sprice{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--accent)}
+  /* DATE PICKER */
+  .date-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;scrollbar-width:none;margin-bottom:20px}
+  .date-scroll::-webkit-scrollbar{display:none}
+  .date-chip{min-width:56px;padding:10px 8px;border-radius:12px;border:1px solid var(--border);background:var(--bg3);text-align:center;cursor:pointer;transition:.2s}
+  .date-chip.sel{background:var(--accent);border-color:var(--accent)}
+  .date-chip.sel .day,.date-chip.sel .date-num{color:#000}
+  .day{font-size:10px;color:var(--muted);margin-bottom:4px}
+  .date-num{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+  /* TIME SLOTS */
+  .slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:20px}
+  .slot{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);text-align:center;font-size:13px;cursor:pointer;transition:.2s;font-weight:500}
+  .slot.sel{background:var(--accent);border-color:var(--accent);color:#000}
+  .slot.taken{opacity:.35;cursor:not-allowed}
+  /* CONFIRM */
+  .confirm-card{background:var(--bg3);border-radius:16px;padding:18px;margin-bottom:16px;border:1px solid var(--border)}
+  .confirm-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+  .confirm-row:last-child{border-bottom:none}
+  .confirm-label{font-size:12px;color:var(--muted)}
+  .confirm-val{font-size:14px;font-weight:500}
+  .total-row{display:flex;justify-content:space-between;align-items:center;padding:16px 0}
+  .total-label{font-family:'Syne',sans-serif;font-size:16px;font-weight:700}
+  .total-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent)}
+  .phone-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:14px 16px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:16px;transition:.2s}
+  .phone-input:focus{border-color:var(--accent)}
+  /* SUCCESS */
+  .success-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center;flex:1}
+  .success-icon{width:80px;height:80px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:24px}
+  .success-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px}
+  .success-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:32px}
+  .booking-ref{background:var(--bg3);border-radius:12px;padding:16px;width:100%;border:1px dashed var(--border);margin-bottom:32px}
+  .ref-label{font-size:11px;color:var(--muted);margin-bottom:4px}
+  .ref-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--accent)}
+  /* MY BOOKINGS */
+  .booking-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:12px}
+  .bk-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+  .bk-salon{font-family:'Syne',sans-serif;font-size:14px;font-weight:700}
+  .bk-status{font-size:10px;padding:3px 10px;border-radius:6px;font-weight:600}
+  .status-upcoming{background:#1A2B1A;color:#7ED348}
+  .status-done{background:#1C1C20;color:#888}
+  .bk-service{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .bk-row{display:flex;gap:16px}
+  .bk-meta{font-size:12px;color:var(--muted)}
+  .bk-meta strong{color:var(--text);font-weight:500}
+  .bk-price{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;color:var(--accent)}
+  /* SEARCH PAGE */
+  .search-page{padding:52px 20px 20px}
+  .filter-row{display:flex;gap:8px;margin:16px 0}
+  .filter-btn{padding:8px 14px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:.2s}
+  .filter-btn.active{background:var(--accent);color:#000;border-color:var(--accent)}
+  /* PROFILE */
+  .profile-screen{padding:52px 20px 20px}
+  .profile-hdr{display:flex;flex-direction:column;align-items:center;padding:20px 0 24px}
+  .profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#000;margin-bottom:12px}
+  .profile-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+  .profile-phone{font-size:13px;color:var(--muted)}
+  .menu-item{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);cursor:pointer}
+  .menu-left{display:flex;align-items:center;gap:14px}
+  .menu-icon{width:36px;height:36px;border-radius:10px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .menu-label{font-size:14px;font-weight:500}
+  .menu-arrow{color:var(--muted)}
+  /* SALON MGMT */
+  .mgmt-tab{padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--muted)}
+  .mgmt-tab.active{background:var(--accent);color:#000;border-color:var(--accent)}
+  .mgmt-tabs{display:flex;gap:8px;margin-bottom:20px}
+  .slot-mgmt{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .slot-toggle{padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);text-align:center;font-size:12px;cursor:pointer;transition:.2s;font-weight:500}
+  .slot-toggle.avail{border-color:var(--accent);color:var(--accent);background:#161F0A}
+  .slot-toggle.blocked{border-color:#3A1A1A;color:#E24B4A;background:#1A0A0A}
+  .add-btn{width:100%;background:none;border:1px dashed var(--border);border-radius:12px;padding:14px;color:var(--muted);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+  .stat-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+  .stat-card{background:var(--bg3);border-radius:14px;padding:16px;border:1px solid var(--border)}
+  .stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--accent)}
+  .stat-label{font-size:11px;color:var(--muted);margin-top:4px}
+  .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;color:var(--muted)}
+  .empty-icon{font-size:48px;margin-bottom:12px}
+  .empty-text{font-size:14px;text-align:center}
+</style>
+
+<div class="app">
+
+<!-- HOME SCREEN -->
+<div id="screen-home" class="screen active">
+  <div class="hdr">
+    <div class="hdr-row">
+      <div>
+        <div class="logo">TRO<span>MO</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">📍 Rohtak, Haryana</div>
+      </div>
+      <div class="avatar" onclick="showProfile()">AR</div>
+    </div>
+  </div>
+  <div class="search-bar" onclick="showScreen('search')">
+    <span class="search-icon">🔍</span>
+    <input type="text" placeholder="Search salons, services..." readonly style="cursor:pointer">
+  </div>
+  <!-- BANNER -->
+  <div style="margin:8px 20px 20px;background:linear-gradient(135deg,#1A2B0A 0%,#0D1A05 100%);border-radius:18px;padding:20px;border:1px solid #2A4010;position:relative;overflow:hidden">
+    <div style="font-size:11px;color:var(--accent);font-weight:600;margin-bottom:6px;letter-spacing:1px">THIS WEEK</div>
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:4px;line-height:1.2">20% off your<br>first booking ✨</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Valid at all nearby salons</div>
+    <button onclick="showScreen('search')" style="background:var(--accent);color:#000;border:none;border-radius:10px;padding:8px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:'Syne',sans-serif">Explore Now</button>
+    <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:56px;opacity:.3">💈</div>
+  </div>
+  <!-- CATEGORIES -->
+  <div class="cats" id="cat-scroll">
+    <div class="cat active" onclick="filterCat(this,'All')">All</div>
+    <div class="cat" onclick="filterCat(this,'Hair')">✂️ Hair</div>
+    <div class="cat" onclick="filterCat(this,'Skin')">✨ Skin</div>
+    <div class="cat" onclick="filterCat(this,'Nails')">💅 Nails</div>
+    <div class="cat" onclick="filterCat(this,'Beard')">🪒 Beard</div>
+    <div class="cat" onclick="filterCat(this,'Bridal')">💍 Bridal</div>
+  </div>
+  <!-- FEATURED -->
+  <div class="section">
+    <div class="section-hdr">
+      <div class="section-title">Featured Salons</div>
+      <div class="see-all" onclick="showScreen('search')">See all →</div>
+    </div>
+  </div>
+  <div class="salon-scroll" id="featured-scroll"></div>
+  <!-- NEARBY -->
+  <div class="section" style="margin-top:24px">
+    <div class="section-hdr">
+      <div class="section-title">Nearby You</div>
+      <div class="see-all">Sort ↕</div>
+    </div>
+    <div id="nearby-list"></div>
+  </div>
+</div>
+
+<!-- SEARCH SCREEN -->
+<div id="screen-search" class="screen">
+  <div class="search-page">
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:16px">Discover Salons</div>
+    <div class="search-bar" style="margin:0 0 0 0">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search salons or services..." id="search-input" oninput="filterSearch()" style="cursor:text">
+    </div>
+    <div class="filter-row">
+      <div class="filter-btn active" onclick="setFilter(this,'all')">All</div>
+      <div class="filter-btn" onclick="setFilter(this,'hair')">Hair</div>
+      <div class="filter-btn" onclick="setFilter(this,'skin')">Skin & Beauty</div>
+      <div class="filter-btn" onclick="setFilter(this,'beard')">Beard</div>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:14px" id="search-count">6 salons found</div>
+    <div id="search-list"></div>
+  </div>
+</div>
+
+<!-- SALON DETAIL SCREEN -->
+<div id="screen-detail" class="screen">
+  <div id="detail-content"></div>
+</div>
+
+<!-- BOOKINGS SCREEN -->
+<div id="screen-bookings" class="screen">
+  <div style="padding:52px 20px 20px">
+    <div style="font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:20px">My Bookings</div>
+    <div id="bookings-list"></div>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="screen-profile" class="screen">
+  <div class="profile-screen">
+    <div class="profile-hdr">
+      <div class="profile-avatar">AR</div>
+      <div class="profile-name">Amit Rawat</div>
+      <div class="profile-phone">+91 98765 43210</div>
+    </div>
+    <div style="margin-bottom:8px">
+      <div class="menu-item" onclick="showScreen('bookings')">
+        <div class="menu-left"><div class="menu-icon">📋</div><div class="menu-label">My Bookings</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-left"><div class="menu-icon">❤️</div><div class="menu-label">Saved Salons</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-left"><div class="menu-icon">🔔</div><div class="menu-label">Notifications</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item" onclick="showSalonMgmt()">
+        <div class="menu-left"><div class="menu-icon">💈</div><div class="menu-label">Salon Owner? Manage</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-left"><div class="menu-icon">🎁</div><div class="menu-label">Refer & Earn</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+      <div class="menu-item">
+        <div class="menu-left"><div class="menu-icon">⚙️</div><div class="menu-label">Settings</div></div>
+        <div class="menu-arrow">›</div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:20px;font-size:11px;color:var(--muted)">TROMO v1.0 · Made for small towns 🌱</div>
+  </div>
+</div>
+
+<!-- BOOKING FLOW SCREEN -->
+<div id="screen-booking" class="screen">
+  <div id="booking-content"></div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="screen-success" class="screen">
+  <div class="success-screen">
+    <div class="success-icon">✓</div>
+    <div class="success-title">All Set!</div>
+    <div class="success-sub">Your appointment is confirmed.<br>We'll remind you 1 hour before.</div>
+    <div class="booking-ref" id="booking-ref-box">
+      <div class="ref-label">Booking Reference</div>
+      <div class="ref-val" id="booking-ref-val">#TRM0000</div>
+    </div>
+    <div id="success-detail" style="width:100%;background:var(--bg3);border-radius:14px;padding:16px;margin-bottom:24px;border:1px solid var(--border)"></div>
+    <button class="book-btn" onclick="showScreen('bookings')">View My Bookings</button>
+  </div>
+</div>
+
+<!-- SALON MGMT SCREEN -->
+<div id="screen-mgmt" class="screen">
+  <div style="padding:52px 20px 20px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+      <button onclick="showProfile()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer">←</button>
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800">Salon Dashboard</div>
+    </div>
+    <!-- Stats -->
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-num">12</div><div class="stat-label">Today's Bookings</div></div>
+      <div class="stat-card"><div class="stat-num">₹8,400</div><div class="stat-label">Today's Revenue</div></div>
+      <div class="stat-card"><div class="stat-num">4.8</div><div class="stat-label">Avg Rating ⭐</div></div>
+      <div class="stat-card"><div class="stat-num">87</div><div class="stat-label">Total Clients</div></div>
+    </div>
+    <div class="mgmt-tabs">
+      <div class="mgmt-tab active" onclick="switchMgmt(this,'bookings-mgmt')">Bookings</div>
+      <div class="mgmt-tab" onclick="switchMgmt(this,'services-mgmt')">Services</div>
+      <div class="mgmt-tab" onclick="switchMgmt(this,'slots-mgmt')">Time Slots</div>
+    </div>
+    <!-- Bookings Tab -->
+    <div id="bookings-mgmt">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Today · 18 Apr</div>
+      <div id="mgmt-booking-list"></div>
+    </div>
+    <!-- Services Tab -->
+    <div id="services-mgmt" style="display:none">
+      <div id="mgmt-service-list"></div>
+      <button class="add-btn" onclick="addService()">+ Add New Service</button>
+    </div>
+    <!-- Slots Tab -->
+    <div id="slots-mgmt" style="display:none">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Tap to toggle availability for today</div>
+      <div class="slot-mgmt" id="slot-mgmt-grid"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <button class="nav-btn active" id="nav-home" onclick="showScreen('home')">
+    <div class="nav-icon">🏠</div>Home
+  </button>
+  <button class="nav-btn" id="nav-search" onclick="showScreen('search')">
+    <div class="nav-icon">🔍</div>Search
+  </button>
+  <button class="nav-btn" id="nav-bookings" onclick="showScreen('bookings')">
+    <div class="nav-icon">📋</div>Bookings
+  </button>
+  <button class="nav-btn" id="nav-profile" onclick="showScreen('profile')">
+    <div class="nav-icon">👤</div>Profile
+  </button>
+</nav>
+
+<script>
+const salons=[
+  {id:1,name:"Glamour Studio",emoji:"💇‍♀️",bg:"#1A1028",loc:"Model Town",dist:"0.4 km",rating:4.9,open:true,cats:["Hair","Skin"],services:[
+    {name:"Haircut & Style",dur:"45 min",price:250},{name:"Hair Color",dur:"2 hr",price:800},
+    {name:"Facial",dur:"1 hr",price:500},{name:"Blowdry",dur:"30 min",price:150},{name:"Hair Spa",dur:"1 hr",price:400}
+  ]},
+  {id:2,name:"The Barber Club",emoji:"💈",bg:"#0D1A28",loc:"Shivaji Nagar",dist:"0.8 km",rating:4.7,open:true,cats:["Hair","Beard"],services:[
+    {name:"Haircut",dur:"30 min",price:120},{name:"Beard Trim",dur:"20 min",price:80},
+    {name:"Shave",dur:"25 min",price:100},{name:"Hair + Beard Combo",dur:"45 min",price:180},{name:"Kids Haircut",dur:"20 min",price:80}
+  ]},
+  {id:3,name:"Bliss Beauty Lounge",emoji:"✨",bg:"#1A0A18",loc:"Civil Lines",dist:"1.2 km",rating:4.8,open:false,cats:["Skin","Nails"],services:[
+    {name:"Manicure",dur:"45 min",price:300},{name:"Pedicure",dur:"1 hr",price:350},
+    {name:"Waxing (full arms)",dur:"30 min",price:200},{name:"Eyebrows",dur:"15 min",price:60},{name:"Facial (D-Tan)",dur:"1 hr",price:450}
+  ]},
+  {id:4,name:"Scissors & Style",emoji:"✂️",bg:"#101A10",loc:"Arya Nagar",dist:"1.5 km",rating:4.6,open:true,cats:["Hair"],services:[
+    {name:"Haircut",dur:"30 min",price:150},{name:"Smoothening",dur:"3 hr",price:1500},
+    {name:"Keratin",dur:"3 hr",price:2000},{name:"Highlights",dur:"2 hr",price:1000}
+  ]},
+  {id:5,name:"Nails & More",emoji:"💅",bg:"#1A1010",loc:"Sector 1",dist:"2.0 km",rating:4.5,open:true,cats:["Nails","Skin"],services:[
+    {name:"Gel Nails",dur:"1 hr",price:500},{name:"Nail Art",dur:"30 min",price:200},
+    {name:"Nail Extension",dur:"1.5 hr",price:800},{name:"Manicure + Pedicure",dur:"1.5 hr",price:600}
+  ]},
+  {id:6,name:"Royal Bridal Studio",emoji:"👑",bg:"#1A1500",loc:"Delhi Road",dist:"2.3 km",rating:5.0,open:true,cats:["Bridal","Hair","Skin"],services:[
+    {name:"Bridal Makeup",dur:"3 hr",price:5000},{name:"Engagement Makeup",dur:"2 hr",price:3000},
+    {name:"Pre-bridal Package",dur:"4 hr",price:8000},{name:"Mehendi",dur:"2 hr",price:1500}
+  ]}
+];
+let bookings=[
+  {id:"TRM1234",salon:"Glamour Studio",service:"Haircut & Style",date:"12 Apr",time:"11:00 AM",price:250,status:"done"},
+  {id:"TRM1891",salon:"The Barber Club",service:"Beard Trim",date:"20 Apr",time:"3:30 PM",price:80,status:"upcoming"},
+];
+let currentSalon=null,currentService=null,selectedDate=null,selectedTime=null;
+let slotStates={};
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const navMap={home:'nav-home',search:'nav-search',bookings:'nav-bookings',profile:'nav-profile'};
+  if(navMap[name]) document.getElementById(navMap[name]).classList.add('active');
+  if(name==='bookings') renderBookings();
+  if(name==='search') renderSearchList(salons);
+  window.scrollTo(0,0);
+}
+
+function showProfile(){showScreen('profile');}
+
+function filterCat(el,cat){
+  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function renderHome(){
+  // Featured cards
+  const fc=document.getElementById('featured-scroll');
+  fc.innerHTML=salons.slice(0,4).map(s=>`
+    <div class="salon-card" onclick="openSalon(${s.id})">
+      <div class="salon-card-img" style="background:${s.bg}">${s.emoji}
+        <div class="rating-badge">⭐ ${s.rating}</div>
+      </div>
+      <div class="salon-card-body">
+        <div class="salon-card-name">${s.name}</div>
+        <div class="salon-card-loc">📍 ${s.loc} · ${s.dist}</div>
+        <div class="salon-card-tags">${s.cats.map(c=>`<div class="tag">${c}</div>`).join('')}</div>
+      </div>
+    </div>`).join('');
+  // Nearby list
+  const nl=document.getElementById('nearby-list');
+  nl.innerHTML=salons.map(s=>`
+    <div class="salon-list-card" onclick="openSalon(${s.id})">
+      <div class="slist-icon" style="background:${s.bg}">${s.emoji}</div>
+      <div class="slist-info">
+        <div class="slist-name">${s.name}</div>
+        <div class="slist-meta">📍 ${s.loc}</div>
+        <div class="slist-row">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="open-badge">${s.open?'Open Now':'Closed'}</div>
+            <span style="font-size:11px;color:var(--gold)">⭐ ${s.rating}</span>
+          </div>
+          <div class="dist">${s.dist}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function renderSearchList(list){
+  const el=document.getElementById('search-list');
+  const ct=document.getElementById('search-count');
+  ct.textContent=list.length+' salons found';
+  if(!list.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No salons found. Try a different search.</div></div>';return;}
+  el.innerHTML=list.map(s=>`
+    <div class="salon-list-card" onclick="openSalon(${s.id})">
+      <div class="slist-icon" style="background:${s.bg}">${s.emoji}</div>
+      <div class="slist-info">
+        <div class="slist-name">${s.name}</div>
+        <div class="slist-meta">📍 ${s.loc} · ${s.cats.join(', ')}</div>
+        <div class="slist-row">
+          <div style="display:flex;gap:8px;align-items:center">
+            <div class="open-badge">${s.open?'Open':'Closed'}</div>
+            <span style="font-size:11px;color:var(--gold)">⭐ ${s.rating}</span>
+          </div>
+          <div class="dist">${s.dist}</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+let activeFilter='all';
+function setFilter(el,f){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');activeFilter=f;runSearch();
+}
+function filterSearch(){runSearch();}
+function runSearch(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  let list=salons.filter(s=>{
+    const match=!q||s.name.toLowerCase().includes(q)||s.loc.toLowerCase().includes(q)||s.cats.some(c=>c.toLowerCase().includes(q));
+    const catMatch=activeFilter==='all'||s.cats.some(c=>c.toLowerCase().includes(activeFilter));
+    return match&&catMatch;
+  });
+  renderSearchList(list);
+}
+
+function openSalon(id){
+  currentSalon=salons.find(s=>s.id===id);
+  const s=currentSalon;
+  const dc=document.getElementById('detail-content');
+  dc.innerHTML=`
+    <div class="detail-hero" style="background:${s.bg}">
+      <div style="font-size:72px">${s.emoji}</div>
+      <button class="back-btn" onclick="history.back();showScreen('home')">←</button>
+      <button class="fav-btn" id="fav-${s.id}" onclick="toggleFav(${s.id})">🤍</button>
+      <div style="position:absolute;bottom:16px;right:16px;background:rgba(0,0,0,.7);border-radius:10px;padding:4px 12px;font-size:13px;color:var(--gold)">⭐ ${s.rating}</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-name">${s.name}</div>
+      <div class="detail-meta">
+        <span>📍 ${s.loc}</span>
+        <span>🕐 10am – 8pm</span>
+        <span style="color:${s.open?'#7ED348':'#E24B4A'}">${s.open?'Open Now':'Closed'}</span>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-title">Services & Pricing</div>
+        ${s.services.map((sv,i)=>`
+          <div class="service-item">
+            <div>
+              <div class="service-name">${sv.name}</div>
+              <div class="service-dur">⏱ ${sv.dur}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px">
+              <div class="service-price">₹${sv.price}</div>
+              <button onclick="startBooking(${s.id},${i})" style="background:var(--accent);color:#000;border:none;border-radius:8px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif">Book</button>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="background:var(--bg3);border-radius:14px;padding:16px;border:1px solid var(--border);margin-bottom:20px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">📍 How to reach</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6">${s.loc}, Rohtak, Haryana<br><span style="color:var(--accent);cursor:pointer">Get Directions →</span></div>
+      </div>
+    </div>`;
+  showScreen('detail');
+}
+
+function toggleFav(id){
+  const btn=document.getElementById('fav-'+id);
+  if(btn) btn.textContent=btn.textContent==='🤍'?'❤️':'🤍';
+}
+
+function startBooking(salonId,serviceIdx){
+  currentSalon=salons.find(s=>s.id===salonId);
+  currentService=currentSalon.services[serviceIdx];
+  selectedDate=null;selectedTime=null;
+  renderBookingStep(1);
+  showScreen('booking');
+}
+
+function getDateChips(){
+  const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now=new Date(2026,3,18);
+  return Array.from({length:7},(_,i)=>{
+    const d=new Date(now);d.setDate(now.getDate()+i);
+    return {day:days[d.getDay()],date:d.getDate(),month:months[d.getMonth()],full:`${d.getDate()} ${months[d.getMonth()]}`};
+  });
+}
+
+const timeSlots=["9:00 AM","9:30 AM","10:00 AM","10:30 AM","11:00 AM","11:30 AM","12:00 PM","12:30 PM","2:00 PM","2:30 PM","3:00 PM","3:30 PM","4:00 PM","4:30 PM","5:00 PM","5:30 PM","6:00 PM","6:30 PM"];
+const takenSlots=["10:00 AM","11:30 AM","2:00 PM","4:30 PM"];
+
+function renderBookingStep(step){
+  const s=currentSalon;const sv=currentService;
+  const steps=step===3&&selectedDate&&selectedTime?3:step;
+  const bc=document.getElementById('booking-content');
+  bc.innerHTML=`<div style="padding:52px 0 20px">
+    <div style="display:flex;align-items:center;gap:12px;padding:0 20px;margin-bottom:20px">
+      <button onclick="bookingBack(${step})" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer">←</button>
+      <div>
+        <div class="flow-title">${step===1?'Pick Date & Time':step===2?'Confirm Booking':'Complete'}</div>
+        <div class="flow-sub">Step ${step} of 3 · ${s.name}</div>
+      </div>
+    </div>
+    <div class="step-indicator" style="padding:0 20px;margin-bottom:20px">
+      <div class="step-dot ${step>=1?'done':''}"></div>
+      <div class="step-dot ${step>=2?'done':step===2?'active':''}"></div>
+      <div class="step-dot ${step>=3?'done':''}"></div>
+    </div>
+    <div class="booking-flow">
+      <div class="selected-service">
+        <div><div class="sel-sname">${sv.name}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">⏱ ${sv.dur}</div></div>
+        <div class="sel-sprice">₹${sv.price}</div>
+      </div>
+      ${step===1?renderStep1():step===2?renderStep2():renderStep3()}
+    </div>
+  </div>`;
+}
+
+function renderStep1(){
+  const chips=getDateChips();
+  return `<div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px">Select Date</div>
+  <div class="date-scroll">${chips.map(c=>`
+    <div class="date-chip ${selectedDate===c.full?'sel':''}" onclick="selectDate('${c.full}')">
+      <div class="day">${c.day}</div>
+      <div class="date-num">${c.date}</div>
+      <div class="day">${c.month}</div>
+    </div>`).join('')}</div>
+  <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:12px">Select Time</div>
+  <div class="slots">${timeSlots.map(t=>`
+    <div class="slot ${takenSlots.includes(t)?'taken':selectedTime===t?'sel':''}" onclick="${takenSlots.includes(t)?'':''} selectTime('${t}')">${t}</div>`).join('')}</div>
+  <button class="book-btn" onclick="proceedStep2()" style="opacity:${selectedDate&&selectedTime?1:.5}">Continue →</button>`;
+}
+
+function renderStep2(){
+  return `<div class="confirm-card">
+    <div class="confirm-row"><div class="confirm-label">Salon</div><div class="confirm-val">${currentSalon.name}</div></div>
+    <div class="confirm-row"><div class="confirm-label">Service</div><div class="confirm-val">${currentService.name}</div></div>
+    <div class="confirm-row"><div class="confirm-label">Date</div><div class="confirm-val">${selectedDate||''}</div></div>
+    <div class="confirm-row"><div class="confirm-label">Time</div><div class="confirm-val">${selectedTime||''}</div></div>
+    <div class="confirm-row"><div class="confirm-label">Duration</div><div class="confirm-val">${currentService.dur}</div></div>
+    <div class="confirm-row"><div class="confirm-label">Location</div><div class="confirm-val">${currentSalon.loc}, Rohtak</div></div>
+  </div>
+  <div class="total-row">
+    <div class="total-label">Total</div>
+    <div class="total-val">₹${currentService.price}</div>
+  </div>
+  <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Your mobile number for confirmation</div>
+  <input type="tel" class="phone-input" placeholder="+91 XXXXX XXXXX" id="phone-in">
+  <button class="book-btn" onclick="confirmBooking()">Confirm Booking ✓</button>`;
+}
+
+function renderStep3(){return '';}
+
+function selectDate(d){selectedDate=d;renderBookingStep(1);}
+function selectTime(t){selectedTime=t;renderBookingStep(1);}
+function proceedStep2(){if(!selectedDate||!selectedTime)return;renderBookingStep(2);}
+function bookingBack(step){if(step<=1){showScreen('detail');}else{renderBookingStep(step-1);}}
+
+function confirmBooking(){
+  const ref='TRM'+Math.floor(1000+Math.random()*9000);
+  bookings.unshift({id:ref,salon:currentSalon.name,service:currentService.name,date:selectedDate,time:selectedTime,price:currentService.price,status:'upcoming'});
+  document.getElementById('booking-ref-val').textContent='#'+ref;
+  document.getElementById('success-detail').innerHTML=`
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Appointment Details</div>
+    <div style="font-size:14px;font-weight:500;margin-bottom:4px">${currentService.name}</div>
+    <div style="font-size:12px;color:var(--muted)">${currentSalon.name} · ${selectedDate} at ${selectedTime}</div>`;
+  showScreen('success');
+}
+
+function renderBookings(){
+  const bl=document.getElementById('bookings-list');
+  if(!bookings.length){bl.innerHTML='<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-text">No bookings yet.<br>Find a salon and book your first appointment!</div><button class="book-btn" style="margin-top:20px" onclick="showScreen(\'search\')">Explore Salons</button></div>';return;}
+  bl.innerHTML=bookings.map(b=>`
+    <div class="booking-item">
+      <div class="bk-top">
+        <div>
+          <div class="bk-salon">${b.salon}</div>
+          <div class="bk-service">${b.service}</div>
+        </div>
+        <div class="bk-status status-${b.status}">${b.status==='upcoming'?'Upcoming':'Done'}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="bk-row">
+          <div class="bk-meta">📅 <strong>${b.date}</strong></div>
+          <div class="bk-meta">🕐 <strong>${b.time}</strong></div>
+        </div>
+        <div class="bk-price">₹${b.price}</div>
+      </div>
+      ${b.status==='upcoming'?`<div style="display:flex;gap:8px;margin-top:12px">
+        <button style="flex:1;background:none;border:1px solid var(--border);border-radius:10px;padding:8px;font-size:12px;color:var(--muted);cursor:pointer">Reschedule</button>
+        <button style="flex:1;background:none;border:1px solid #3A1A1A;border-radius:10px;padding:8px;font-size:12px;color:#E24B4A;cursor:pointer">Cancel</button>
+      </div>`:''}
+    </div>`).join('');
+}
+
+// SALON MGMT
+function showSalonMgmt(){
+  renderMgmt();
+  showScreen('mgmt');
+}
+
+const mgmtBookings=[
+  {client:"Priya S.",service:"Facial",time:"10:00 AM",price:500},
+  {client:"Rahul K.",service:"Haircut",time:"11:30 AM",price:150},
+  {client:"Sunita M.",service:"Hair Color",time:"2:00 PM",price:800},
+  {client:"Amit R.",service:"Hair Spa",time:"3:30 PM",price:400},
+];
+
+const mgmtServices=[
+  {name:"Haircut & Style",dur:"45 min",price:250},
+  {name:"Hair Color",dur:"2 hr",price:800},
+  {name:"Facial",dur:"1 hr",price:500},
+  {name:"Blowdry",dur:"30 min",price:150},
+];
+
+const allSlotTimes=["9:00","9:30","10:00","10:30","11:00","11:30","12:00","2:00","2:30","3:00","3:30","4:00","4:30","5:00","5:30","6:00","6:30","7:00"];
+
+function renderMgmt(){
+  // Bookings tab
+  document.getElementById('mgmt-booking-list').innerHTML=mgmtBookings.map(b=>`
+    <div class="booking-item" style="margin-bottom:10px">
+      <div class="bk-top" style="margin-bottom:8px">
+        <div><div class="bk-salon">${b.client}</div><div class="bk-service">${b.service}</div></div>
+        <div class="bk-price">₹${b.price}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div class="bk-meta">🕐 ${b.time}</div>
+        <div style="display:flex;gap:8px">
+          <button style="background:#1A2B1A;border:none;border-radius:8px;padding:5px 12px;font-size:11px;color:#7ED348;cursor:pointer">Confirm</button>
+          <button style="background:#1A0A0A;border:none;border-radius:8px;padding:5px 12px;font-size:11px;color:#E24B4A;cursor:pointer">Cancel</button>
+        </div>
+      </div>
+    </div>`).join('');
+  // Services tab
+  document.getElementById('mgmt-service-list').innerHTML=mgmtServices.map((sv,i)=>`
+    <div class="service-item">
+      <div><div class="service-name">${sv.name}</div><div class="service-dur">⏱ ${sv.dur}</div></div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="service-price">₹${sv.price}</div>
+        <button onclick="editService(${i})" style="background:var(--bg4);border:none;border-radius:8px;padding:5px 10px;font-size:11px;color:var(--muted);cursor:pointer">Edit</button>
+      </div>
+    </div>`).join('');
+  // Slots tab
+  if(!Object.keys(slotStates).length) allSlotTimes.forEach(t=>{slotStates[t]=!["10:00","11:30","2:00"].includes(t);});
+  renderSlotGrid();
+}
+
+function renderSlotGrid(){
+  document.getElementById('slot-mgmt-grid').innerHTML=allSlotTimes.map(t=>`
+    <div class="slot-toggle ${slotStates[t]?'avail':'blocked'}" onclick="toggleSlot('${t}')">${t}<br><span style="font-size:9px">${slotStates[t]?'Open':'Blocked'}</span></div>`).join('');
+}
+
+function toggleSlot(t){slotStates[t]=!slotStates[t];renderSlotGrid();}
+function addService(){alert('Add service form coming soon! This would open a form to enter service name, duration, and price.');}
+function editService(i){const sv=mgmtServices[i];alert(`Edit "${sv.name}"\nCurrent price: ₹${sv.price}`);}
+
+function switchMgmt(el,tab){
+  document.querySelectorAll('.mgmt-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['bookings-mgmt','services-mgmt','slots-mgmt'].forEach(id=>{
+    document.getElementById(id).style.display=id===tab?'block':'none';
+  });
+}
+
+renderHome();
+</script>
